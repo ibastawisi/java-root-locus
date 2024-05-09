@@ -1,86 +1,107 @@
 import java.awt.*;
 import javax.swing.*;
-
 import org.ejml.data.Complex_F64;
 
-import java.awt.geom.*;
-
 public class Graph extends JPanel {
-    RootLocus rl;
-    int scale = 50;
+    RootLocus[] rlArray;
+    int scale;
     int k = 0;
+    int slide = 0;
+    RootLocus rl;
 
-    public Graph(RootLocus rl) {
-        this.rl = rl;
+    public Graph(RootLocus[] rlArray) {
+        this.rlArray = rlArray;
+        this.rl = rlArray[0];
+        updateScale();
+    }
+
+    private void updateScale() {
+        double step = rl.getStep();
+        this.scale = (int) Math.abs(Math.log10(step) * 20);
     }
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
         int width = getWidth();
         int height = getHeight();
         int xFrac = width % scale;
         int yFrac = height % scale;
 
         // draw x-axis and y-axis
-        drawAxis(g2d, width, height);
-        drawAxisTiks(g2d, width, height, xFrac, yFrac);
+        drawAxis(g, width, height);
+        drawAxisTiks(g, width, height, xFrac, yFrac);
 
         // draw root locus
         Complex_F64[][] roots = rl.getRoots();
         // draw poles as blue X
         Complex_F64[] poles = roots[k];
-        drawRoots(g2d, width, height, poles);
+        drawRoots(g, width, height, poles);
         // draw locus as red dots
-        drawLocus(g2d, width, height, roots);
+        drawLocus(g, width, height, roots);
         // animate the root locus
-        k = (k + 10) % roots.length;
+        k = (int) ((k + Math.log10(k + 10) * 100));
+        g.drawString("k = " + k, 10, 10);
+
+        if (k > 10000) {
+            k = 0;
+            slide = (slide + 1) % rlArray.length;
+            rl = rlArray[slide];
+            updateScale();
+        }
         repaint();
 
     }
 
-    private void drawAxis(Graphics2D g2d, int width, int height) {
-        g2d.draw(new Line2D.Double(width / 2, 0, width / 2, height));
-        g2d.draw(new Line2D.Double(0, height / 2, width, height / 2));
+    private void drawAxis(Graphics g, int width, int height) {
+        g.drawLine(width / 2, 0, width / 2, height);
+        g.drawLine(0, height / 2, width, height / 2);
     }
 
-    private void drawAxisTiks(Graphics2D g2d, int width, int height, int xFrac, int yFrac) {
-        g2d.setPaint(Color.BLACK);
+    private void drawAxisTiks(Graphics g, int width, int height, int xFrac, int yFrac) {
+        g.setColor(Color.BLACK);
         // draw tiks on x-axis
         for (int i = 0; i < width; i += scale) {
-            g2d.draw(new Line2D.Double(i + xFrac / 2, height / 2 - 5, i + xFrac / 2, height / 2 + 5));
-            g2d.drawString(String.valueOf((i - width / 2 + xFrac / 2) / scale), i, height / 2 + 20);
+            g.drawLine(i + xFrac / 2, height / 2 - 5, i + xFrac / 2, height / 2 + 5);
+            g.drawString(String.valueOf((i - width / 2 + xFrac / 2) / scale), i, height / 2 + 20);
         }
         // draw tiks on y-axis
         for (int i = 0; i < height; i += scale) {
-            g2d.draw(new Line2D.Double(width / 2 - 5, i + yFrac / 2, width / 2 + 5, i + yFrac / 2));
-            g2d.drawString(String.valueOf((height / 2 - i - yFrac / 2) / scale), width / 2 + 10, i);
+            g.drawLine(width / 2 - 5, i + yFrac / 2, width / 2 + 5, i + yFrac / 2);
+            g.drawString(String.valueOf((height / 2 - i - yFrac / 2) / scale), width / 2 + 10, i);
         }
     }
 
-    private void drawRoots(Graphics2D g2d, int width, int height, Complex_F64[] poles) {
-        g2d.setPaint(Color.BLUE);
+    private void drawRoots(Graphics g, int width, int height, Complex_F64[] poles) {
+        g.setColor(Color.BLUE);
         for (int i = 0; i < poles.length; i++) {
-            g2d.draw(new Line2D.Double((width / 2) + (poles[i].real * scale) - 5,
-                    (height / 2) - (poles[i].imaginary * scale) - 5,
-                    (width / 2) + (poles[i].real * scale) + 5,
-                    (height / 2) - (poles[i].imaginary * scale) + 5));
-            g2d.draw(new Line2D.Double((width / 2) + (poles[i].real * scale) - 5,
-                    (height / 2) - (poles[i].imaginary * scale) + 5,
-                    (width / 2) + (poles[i].real * scale) + 5,
-                    (height / 2) - (poles[i].imaginary * scale) - 5));
+            if (poles[i] == null) {
+                continue;
+            }
+            g.drawLine(
+                    (int) ((width / 2) + (poles[i].real * scale) - 5),
+                    (int) ((height / 2) - (poles[i].imaginary * scale) - 5),
+                    (int) ((width / 2) + (poles[i].real * scale) + 5),
+                    (int) ((height / 2) - (poles[i].imaginary * scale) + 5));
+            g.drawLine(
+                    (int) ((width / 2) + (poles[i].real * scale) - 5),
+                    (int) ((height / 2) - (poles[i].imaginary * scale) + 5),
+                    (int) ((width / 2) + (poles[i].real * scale) + 5),
+                    (int) ((height / 2) - (poles[i].imaginary * scale) - 5));
 
         }
     }
 
-    private void drawLocus(Graphics2D g2d, int width, int height, Complex_F64[][] roots) {
-        g2d.setPaint(Color.RED);
+    private void drawLocus(Graphics g, int width, int height, Complex_F64[][] roots) {
+        g.setColor(Color.RED);
         for (int i = 0; i < roots.length; i++) {
             for (int j = 0; j < roots[i].length; j++) {
-                if (roots[i][j] != null) {
-                    g2d.fill(new Ellipse2D.Double((width / 2) + (roots[i][j].real * scale) - 1,
-                            (height / 2) - (roots[i][j].imaginary * scale) - 1, 2, 2));
+                if (roots[i][j] == null) {
+                    continue;
                 }
+                g.fillOval(
+                        (int) ((width / 2) + (roots[i][j].real * scale) - 1),
+                        (int) ((height / 2) - (roots[i][j].imaginary * scale) - 1),
+                        2, 2);
             }
         }
     }
