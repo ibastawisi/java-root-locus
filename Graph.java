@@ -161,15 +161,14 @@ public class Graph extends JPanel {
             }
             double x = Math.cos(departureAngles[i] * Math.PI / 180);
             double y = Math.sin(departureAngles[i] * Math.PI / 180);
-            int dir = poles[i].real > 0 ? 1 : -1;
             g.drawLine(
-                    (int) ((width / 2) + (poles[i].real * scale)),
-                    (int) ((height / 2) - (poles[i].imaginary * scale)),
-                    (int) ((width / 2) + (poles[i].real * scale) + x * 100 * dir),
-                    (int) ((height / 2) - (poles[i].imaginary * scale) - y * 100 * dir));
+                    (int) ((width / 2) + (poles[i].real * scale) - x * 50),
+                    (int) ((height / 2) - (poles[i].imaginary * scale) + y * 50),
+                    (int) ((width / 2) + (poles[i].real * scale) + x * 50),
+                    (int) ((height / 2) - (poles[i].imaginary * scale) - y * 50));
             g.drawString(String.valueOf(Math.round(departureAngles[i] * 100.0) / 100.0),
-                    (int) ((width / 2) + (poles[i].real * scale) + x * 100 * dir),
-                    (int) ((height / 2) - (poles[i].imaginary * scale) - y * 100 * dir));
+                    (int) ((width / 2) + (poles[i].real * scale) + 5),
+                    (int) ((height / 2) - (poles[i].imaginary * scale) - 5));
         }
     }
 
@@ -183,15 +182,14 @@ public class Graph extends JPanel {
             }
             double x = Math.cos(arrivalAngles[i] * Math.PI / 180);
             double y = Math.sin(arrivalAngles[i] * Math.PI / 180);
-            int dir = zeros[i].real > 0 ? 1 : -1;
             g.drawLine(
-                    (int) ((width / 2) + (zeros[i].real * scale)),
-                    (int) ((height / 2) - (zeros[i].imaginary * scale)),
-                    (int) ((width / 2) + (zeros[i].real * scale) + x * 100 * dir),
-                    (int) ((height / 2) - (zeros[i].imaginary * scale) - y * 100 * dir));
+                    (int) ((width / 2) + (zeros[i].real * scale) - x * 50),
+                    (int) ((height / 2) - (zeros[i].imaginary * scale) + y * 50),
+                    (int) ((width / 2) + (zeros[i].real * scale) + x * 50),
+                    (int) ((height / 2) - (zeros[i].imaginary * scale) - y * 50));
             g.drawString(String.valueOf(Math.round(arrivalAngles[i] * 100.0) / 100.0),
-                    (int) ((width / 2) + (zeros[i].real * scale) + x * 100 * dir),
-                    (int) ((height / 2) - (zeros[i].imaginary * scale) - y * 100 * dir));
+                    (int) ((width / 2) + (zeros[i].real * scale) + 5),
+                    (int) ((height / 2) - (zeros[i].imaginary * scale) - 5));
         }
     }
 }
