@@ -21,11 +21,11 @@ public class RootLocus {
     }
 
     private Complex_F64[][] calculatRoots() {
-        int minK = 0;
-        double maxK = step * 25000;
+        int count = 30000;
         int coeffLength = Math.max(numerator.length, denominator.length);
-        Complex_F64[][] roots = new Complex_F64[(int) ((maxK - minK) / step)][coeffLength];
-        for (double k = minK; k < maxK; k += step) {
+        Complex_F64[][] roots = new Complex_F64[count][denominator.length];
+        for (int c = 0; c < count; c++) {
+            double k = step * c;
             double[] coefficients = new double[coeffLength];
             for (int i = 0; i < denominator.length; i++) {
                 coefficients[i] = denominator[i];
@@ -33,7 +33,7 @@ public class RootLocus {
             for (int i = 0; i < numerator.length; i++) {
                 coefficients[i] += numerator[i] * k;
             }
-            roots[(int) ((k - minK) / step)] = PolynomialRootFinder.findRoots(coefficients);
+            roots[c] = PolynomialRootFinder.findRoots(coefficients);
         }
         return roots;
     }

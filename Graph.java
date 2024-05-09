@@ -24,12 +24,10 @@ public class Graph extends JPanel {
         super.paintComponent(g);
         int width = getWidth();
         int height = getHeight();
-        int xFrac = width % scale;
-        int yFrac = height % scale;
 
         // draw x-axis and y-axis
         drawAxis(g, width, height);
-        drawAxisTiks(g, width, height, xFrac, yFrac);
+        drawAxisTicks(g, width, height);
 
         Complex_F64[][] roots = rl.getRoots();
 
@@ -38,14 +36,14 @@ public class Graph extends JPanel {
         // draw poles
         Complex_F64[] poles = roots[k];
         drawRoots(g, width, height, poles);
-        // draw locus
-        drawLocus(g, width, height, roots);
         // draw asymptotes
         drawAsymptotes(g, width, height);
         // draw departure angles
         drawDepartureAngles(g, width, height);
         // draw arrival angles
         drawArrivalAngles(g, width, height);
+        // draw locus
+        drawLocus(g, width, height, roots);
 
         // animate the root locus
         if (k < 100) {
@@ -59,7 +57,7 @@ public class Graph extends JPanel {
         }
         g.drawString("k = " + k, 10, 10);
 
-        if (k > 25000) {
+        if (k >= 30000) {
             k = 0;
             slide = (slide + 1) % rlArray.length;
             rl = rlArray[slide];
@@ -74,17 +72,25 @@ public class Graph extends JPanel {
         g.drawLine(0, height / 2, width, height / 2);
     }
 
-    private void drawAxisTiks(Graphics g, int width, int height, int xFrac, int yFrac) {
+    private void drawAxisTicks(Graphics g, int width, int height) {
         g.setColor(Color.BLACK);
-        // draw tiks on x-axis
-        for (int i = 0; i < width; i += scale) {
-            g.drawLine(i + xFrac / 2, height / 2 - 5, i + xFrac / 2, height / 2 + 5);
-            g.drawString(String.valueOf((i - width / 2 + xFrac / 2) / scale), i, height / 2 + 20);
+        // draw ticks on x-axis
+        for (int i = width / 2 + scale; i < width; i += scale) {
+            g.drawLine(i, height / 2 - 5, i, height / 2 + 5);
+            g.drawString(String.valueOf((i - width / 2) / scale), i, height / 2 + 20);
         }
-        // draw tiks on y-axis
-        for (int i = 0; i < height; i += scale) {
-            g.drawLine(width / 2 - 5, i + yFrac / 2, width / 2 + 5, i + yFrac / 2);
-            g.drawString(String.valueOf((height / 2 - i - yFrac / 2) / scale), width / 2 + 10, i);
+        for (int i = width / 2 - scale; i > 0; i -= scale) {
+            g.drawLine(i, height / 2 - 5, i, height / 2 + 5);
+            g.drawString(String.valueOf((i - width / 2) / scale), i, height / 2 + 20);
+        }
+        // draw ticks on y-axis
+        for (int i = height / 2 + scale; i < height; i += scale) {
+            g.drawLine(width / 2 - 5, i, width / 2 + 5, i);
+            g.drawString(String.valueOf((height / 2 - i) / scale), width / 2 + 10, i);
+        }
+        for (int i = height / 2 - scale; i > 0; i -= scale) {
+            g.drawLine(width / 2 - 5, i, width / 2 + 5, i);
+            g.drawString(String.valueOf((height / 2 - i) / scale), width / 2 + 10, i);
         }
     }
 

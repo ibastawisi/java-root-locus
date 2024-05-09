@@ -5,7 +5,7 @@ public class App {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         RootLocus rl1 = new RootLocus(new double[] { 32, -8, 1 }, new double[] { 0, 32, 8, 1 }, 0.01);
-        RootLocus rl2 = new RootLocus(new double[] { 9, 1 }, new double[] { 0, 11, 4, 1 }, 0.05);
+        RootLocus rl2 = new RootLocus(new double[] { 9, 1 }, new double[] { 0, 11, 4, 1 }, 0.02);
         RootLocus rl3 = new RootLocus(new double[] { 1 }, new double[] { 0, 6, 5, 1 }, 0.01);
         RootLocus rl4 = new RootLocus(new double[] { 1 }, new double[] { 0, 10, 17, 8, 1 }, 0.01);
         RootLocus[] rl = { rl1, rl2, rl3, rl4 };
