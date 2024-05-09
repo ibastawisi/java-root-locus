@@ -31,18 +31,35 @@ public class Graph extends JPanel {
         drawAxis(g, width, height);
         drawAxisTiks(g, width, height, xFrac, yFrac);
 
-        // draw root locus
         Complex_F64[][] roots = rl.getRoots();
-        // draw poles as blue X
+
+        // draw zeros
+        drawZeros(g, width, height);
+        // draw poles
         Complex_F64[] poles = roots[k];
         drawRoots(g, width, height, poles);
-        // draw locus as red dots
+        // draw locus
         drawLocus(g, width, height, roots);
+        // draw asymptotes
+        drawAsymptotes(g, width, height);
+        // draw departure angles
+        drawDepartureAngles(g, width, height);
+        // draw arrival angles
+        drawArrivalAngles(g, width, height);
+
         // animate the root locus
-        k = (int) ((k + Math.log10(k + 10) * 100));
+        if (k < 100) {
+            k += 10;
+        } else if (k < 1000) {
+            k += 100;
+        } else if (k < 10000) {
+            k += 1000;
+        } else {
+            k += 10000;
+        }
         g.drawString("k = " + k, 10, 10);
 
-        if (k > 10000) {
+        if (k > 25000) {
             k = 0;
             slide = (slide + 1) % rlArray.length;
             rl = rlArray[slide];
@@ -91,6 +108,16 @@ public class Graph extends JPanel {
         }
     }
 
+    private void drawZeros(Graphics g, int width, int height) {
+        Complex_F64[] zeros = rl.getZeros();
+        g.setColor(Color.RED);
+        for (int i = 0; i < zeros.length; i++) {
+            g.drawOval(
+                    (int) ((width / 2) + (zeros[i].real * scale) - 3),
+                    (int) ((height / 2) - (zeros[i].imaginary * scale) - 3), 6, 6);
+        }
+    }
+
     private void drawLocus(Graphics g, int width, int height, Complex_F64[][] roots) {
         g.setColor(Color.RED);
         for (int i = 0; i < roots.length; i++) {
@@ -106,4 +133,65 @@ public class Graph extends JPanel {
         }
     }
 
+    private void drawAsymptotes(Graphics g, int width, int height) {
+        Complex_F64 centroid = rl.getAsymptotesCentroid();
+        double[] angles = rl.getAsymptotesAngles();
+        g.setColor(Color.GREEN);
+        for (int i = 0; i < angles.length; i++) {
+            if (angles[i] == 0 || angles[i] == 180 || angles[i] == -180) {
+                continue;
+            }
+            double x = Math.cos(angles[i] * Math.PI / 180);
+            double y = Math.sin(angles[i] * Math.PI / 180);
+            g.drawLine(
+                    (int) ((width / 2) + (centroid.real * scale)),
+                    (int) ((height / 2) - (centroid.imaginary * scale)),
+                    (int) ((width / 2) + (centroid.real * scale) + x * 1000),
+                    (int) ((height / 2) - (centroid.imaginary * scale) - y * 1000));
+        }
+    }
+
+    private void drawDepartureAngles(Graphics g, int width, int height) {
+        Complex_F64[] poles = rl.getPoles();
+        double[] departureAngles = rl.getDepartureAngles();
+        g.setColor(Color.GRAY);
+        for (int i = 0; i < poles.length; i++) {
+            if (poles[i].imaginary == 0) {
+                continue;
+            }
+            double x = Math.cos(departureAngles[i] * Math.PI / 180);
+            double y = Math.sin(departureAngles[i] * Math.PI / 180);
+            int dir = poles[i].real > 0 ? 1 : -1;
+            g.drawLine(
+                    (int) ((width / 2) + (poles[i].real * scale)),
+                    (int) ((height / 2) - (poles[i].imaginary * scale)),
+                    (int) ((width / 2) + (poles[i].real * scale) + x * 100 * dir),
+                    (int) ((height / 2) - (poles[i].imaginary * scale) - y * 100 * dir));
+            g.drawString(String.valueOf(Math.round(departureAngles[i] * 100.0) / 100.0),
+                    (int) ((width / 2) + (poles[i].real * scale) + x * 100 * dir),
+                    (int) ((height / 2) - (poles[i].imaginary * scale) - y * 100 * dir));
+        }
+    }
+
+    private void drawArrivalAngles(Graphics g, int width, int height) {
+        Complex_F64[] zeros = rl.getZeros();
+        double[] arrivalAngles = rl.getArrivalAngles();
+        g.setColor(Color.GRAY);
+        for (int i = 0; i < zeros.length; i++) {
+            if (zeros[i].imaginary == 0) {
+                continue;
+            }
+            double x = Math.cos(arrivalAngles[i] * Math.PI / 180);
+            double y = Math.sin(arrivalAngles[i] * Math.PI / 180);
+            int dir = zeros[i].real > 0 ? 1 : -1;
+            g.drawLine(
+                    (int) ((width / 2) + (zeros[i].real * scale)),
+                    (int) ((height / 2) - (zeros[i].imaginary * scale)),
+                    (int) ((width / 2) + (zeros[i].real * scale) + x * 100 * dir),
+                    (int) ((height / 2) - (zeros[i].imaginary * scale) - y * 100 * dir));
+            g.drawString(String.valueOf(Math.round(arrivalAngles[i] * 100.0) / 100.0),
+                    (int) ((width / 2) + (zeros[i].real * scale) + x * 100 * dir),
+                    (int) ((height / 2) - (zeros[i].imaginary * scale) - y * 100 * dir));
+        }
+    }
 }
