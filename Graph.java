@@ -5,7 +5,7 @@ import org.ejml.data.Complex_F64;
 public class Graph extends JPanel {
     RootLocus[] rlArray;
     int scale;
-    int k = 0;
+    int index = 0;
     int slide = 0;
     RootLocus rl;
 
@@ -34,7 +34,7 @@ public class Graph extends JPanel {
         // draw zeros
         drawZeros(g, width, height);
         // draw poles
-        Complex_F64[] poles = roots[k];
+        Complex_F64[] poles = roots[index];
         drawRoots(g, width, height, poles);
         // draw asymptotes
         drawAsymptotes(g, width, height);
@@ -46,19 +46,13 @@ public class Graph extends JPanel {
         drawLocus(g, width, height, roots);
 
         // animate the root locus
-        if (k < 100) {
-            k += 10;
-        } else if (k < 1000) {
-            k += 100;
-        } else if (k < 10000) {
-            k += 1000;
-        } else {
-            k += 10000;
-        }
+        index = (int) Math.round(index * 1.1 + 1);
+        double step = rl.getStep();
+        double k = Math.round(Math.pow(index * step, 3) * 100.0) / 100.0;
         g.drawString("k = " + k, 10, 10);
 
-        if (k >= 30000) {
-            k = 0;
+        if (index >= 5000) {
+            index = 0;
             slide = (slide + 1) % rlArray.length;
             rl = rlArray[slide];
             updateScale();
